@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Profile Analyzer</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <aside class="sidebar" aria-label="Stored profiles">
+          <div class="brand-block">
+            <div class="brand-mark" aria-hidden="true">
+              <span></span>
+            </div>
+            <div>
+              <h1>GitHub Profile Analyzer</h1>
+              <p>Profile insights stored in MySQL</p>
+            </div>
+          </div>
+
+          <form class="analyze-form" id="analyzeForm">
+            <label for="usernameInput">GitHub username</label>
+            <div class="input-row">
+              <input
+                id="usernameInput"
+                name="username"
+                type="text"
+                placeholder="octocat"
+                autocomplete="off"
+                required
+              />
+              <button class="icon-button primary" type="submit" title="Analyze profile" aria-label="Analyze profile">
+                <span class="icon search-icon" aria-hidden="true"></span>
+              </button>
+            </div>
+          </form>
+
+          <div class="sidebar-actions">
+            <button class="text-button" id="refreshButton" type="button">
+              <span class="icon refresh-icon" aria-hidden="true"></span>
+              Refresh
+            </button>
+          </div>
+
+          <div class="profile-list" id="profileList" aria-live="polite"></div>
+        </aside>
+
+        <section class="content-panel" aria-label="Profile analysis">
+          <div class="status-strip" id="statusStrip">
+            <span class="status-dot"></span>
+            <span id="statusText">Ready</span>
+          </div>
+
+          <section class="profile-view" id="profileView">
+            <div class="empty-state">
+              <div class="empty-mark" aria-hidden="true"></div>
+              <h2>Select or analyze a profile</h2>
+              <p>Stored analyses appear on the left after GitHub data is fetched.</p>
+            </div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
