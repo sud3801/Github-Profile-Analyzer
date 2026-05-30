@@ -61,6 +61,9 @@ const initializeDatabase = async () => {
       total_stars INT DEFAULT 0,
       total_forks INT DEFAULT 0,
       top_languages JSON,
+      developer_score INT DEFAULT 0,
+      profile_summary TEXT,
+      profile_badges JSON,
       most_starred_repo VARCHAR(255),
       latest_repo VARCHAR(255),
       average_stars_per_repo DECIMAL(10,2) DEFAULT 0,
@@ -71,6 +74,28 @@ const initializeDatabase = async () => {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )
   `);
+
+  await ensureColumn('developer_score', 'developer_score INT DEFAULT 0');
+  await ensureColumn('profile_summary', 'profile_summary TEXT');
+  await ensureColumn('profile_badges', 'profile_badges JSON');
+};
+
+const ensureColumn = async (columnName, columnDefinition) => {
+  const [rows] = await pool.execute(
+    `
+      SELECT COLUMN_NAME
+      FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = 'github_profiles'
+        AND COLUMN_NAME = ?
+      LIMIT 1
+    `,
+    [columnName]
+  );
+
+  if (rows.length === 0) {
+    await pool.execute(`ALTER TABLE github_profiles ADD COLUMN ${columnDefinition}`);
+  }
 };
 
 module.exports = {

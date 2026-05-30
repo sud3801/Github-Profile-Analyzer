@@ -16,6 +16,9 @@ const profileColumns = `
   total_stars,
   total_forks,
   top_languages,
+  developer_score,
+  profile_summary,
+  profile_badges,
   most_starred_repo,
   latest_repo,
   average_stars_per_repo,
@@ -37,6 +40,10 @@ const normalizeProfile = (profile) => {
       typeof profile.top_languages === 'string'
         ? JSON.parse(profile.top_languages)
         : profile.top_languages,
+    profile_badges:
+      typeof profile.profile_badges === 'string'
+        ? JSON.parse(profile.profile_badges)
+        : profile.profile_badges || [],
     has_profile_readme: Boolean(profile.has_profile_readme),
   };
 };
@@ -58,6 +65,9 @@ const upsertProfile = async (profile) => {
       total_stars,
       total_forks,
       top_languages,
+      developer_score,
+      profile_summary,
+      profile_badges,
       most_starred_repo,
       latest_repo,
       average_stars_per_repo,
@@ -65,7 +75,7 @@ const upsertProfile = async (profile) => {
       account_created_at,
       analyzed_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CAST(? AS JSON), ?, ?, ?, ?, ?, NOW())
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CAST(? AS JSON), ?, ?, CAST(? AS JSON), ?, ?, ?, ?, ?, NOW())
     ON DUPLICATE KEY UPDATE
       name = VALUES(name),
       bio = VALUES(bio),
@@ -80,6 +90,9 @@ const upsertProfile = async (profile) => {
       total_stars = VALUES(total_stars),
       total_forks = VALUES(total_forks),
       top_languages = VALUES(top_languages),
+      developer_score = VALUES(developer_score),
+      profile_summary = VALUES(profile_summary),
+      profile_badges = VALUES(profile_badges),
       most_starred_repo = VALUES(most_starred_repo),
       latest_repo = VALUES(latest_repo),
       average_stars_per_repo = VALUES(average_stars_per_repo),
@@ -103,6 +116,9 @@ const upsertProfile = async (profile) => {
     profile.total_stars,
     profile.total_forks,
     JSON.stringify(profile.top_languages),
+    profile.developer_score,
+    profile.profile_summary,
+    JSON.stringify(profile.profile_badges),
     profile.most_starred_repo,
     profile.latest_repo,
     profile.average_stars_per_repo,

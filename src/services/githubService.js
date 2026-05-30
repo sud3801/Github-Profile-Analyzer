@@ -25,7 +25,19 @@ const getGitHubErrorMessage = (error, username) => {
     return 'GitHub API rate limit reached. Add a GITHUB_TOKEN to increase the limit.';
   }
 
+  if (error.response?.status === 401) {
+    return 'GitHub token is invalid or expired. Update GITHUB_TOKEN or leave it empty for public-only access.';
+  }
+
   return 'Unable to fetch data from GitHub';
+};
+
+const createGitHubError = (error, username) => {
+  const message = getGitHubErrorMessage(error, username);
+  const statusCode = error.response?.status === 404 ? 404 : error.response?.status === 401 ? 401 : 502;
+  const githubError = new Error(message);
+  githubError.statusCode = statusCode;
+  return githubError;
 };
 
 const fetchGitHubProfile = async (username) => {
@@ -33,11 +45,7 @@ const fetchGitHubProfile = async (username) => {
     const { data } = await githubClient.get(`/users/${username}`);
     return data;
   } catch (error) {
-    const message = getGitHubErrorMessage(error, username);
-    const statusCode = error.response?.status === 404 ? 404 : 502;
-    const githubError = new Error(message);
-    githubError.statusCode = statusCode;
-    throw githubError;
+    throw createGitHubError(error, username);
   }
 };
 
@@ -64,10 +72,7 @@ const fetchGitHubRepositories = async (username) => {
 
     return repositories;
   } catch (error) {
-    const message = getGitHubErrorMessage(error, username);
-    const githubError = new Error(message);
-    githubError.statusCode = 502;
-    throw githubError;
+    throw createGitHubError(error, username);
   }
 };
 
@@ -80,7 +85,7 @@ const fetchProfileReadmeExists = async (username) => {
       return false;
     }
 
-    throw error;
+    throw createGitHubError(error, username);
   }
 };
 

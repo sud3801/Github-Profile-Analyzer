@@ -100,6 +100,16 @@ const renderLanguages = (languages) => {
   `;
 };
 
+const renderBadges = (badges) => {
+  const safeBadges = Array.isArray(badges) && badges.length > 0 ? badges : ['Growing Profile'];
+
+  return `
+    <div class="badge-list">
+      ${safeBadges.map((badge) => `<span class="profile-badge">${escapeHtml(badge)}</span>`).join('')}
+    </div>
+  `;
+};
+
 const renderProfile = (profile) => {
   state.selectedUsername = profile.username;
   renderProfileList();
@@ -112,8 +122,14 @@ const renderProfile = (profile) => {
           <h2>${escapeHtml(profile.name || profile.username)}</h2>
           <a href="${profile.github_url}" target="_blank" rel="noreferrer">@${escapeHtml(profile.username)}</a>
           <p>${escapeHtml(profile.bio || 'No bio available for this profile.')}</p>
+          ${renderBadges(profile.profile_badges)}
         </div>
         <div class="header-actions">
+          <div class="score-tile" aria-label="Developer score">
+            <span>Score</span>
+            <strong>${formatNumber(profile.developer_score)}</strong>
+            <small>/100</small>
+          </div>
           <button class="text-button danger" id="deleteButton" type="button">
             <span class="icon trash-icon" aria-hidden="true"></span>
             Delete
@@ -126,6 +142,11 @@ const renderProfile = (profile) => {
         <div class="metric"><span>Followers</span><strong>${formatNumber(profile.followers)}</strong></div>
         <div class="metric"><span>Total stars</span><strong>${formatNumber(profile.total_stars)}</strong></div>
         <div class="metric"><span>Total forks</span><strong>${formatNumber(profile.total_forks)}</strong></div>
+      </section>
+
+      <section class="summary-panel">
+        <h3>Profile summary</h3>
+        <p>${escapeHtml(profile.profile_summary || 'Analyze this profile again to generate a summary.')}</p>
       </section>
 
       <section class="details-grid">
