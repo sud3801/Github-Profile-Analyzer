@@ -1,17 +1,44 @@
 const mysql = require('mysql2/promise');
 
+const getEnv = (...keys) => {
+  return keys.map((key) => process.env[key]).find(Boolean);
+};
+
+const databaseUrl = getEnv('DATABASE_URL', 'MYSQL_URL');
+
+const dbConfig = databaseUrl
+  ? databaseUrl
+  : {
+      host: getEnv('DB_HOST', 'MYSQLHOST', 'MYSQL_HOST'),
+      port: Number(getEnv('DB_PORT', 'MYSQLPORT', 'MYSQL_PORT') || 3306),
+      user: getEnv('DB_USER', 'MYSQLUSER', 'MYSQL_USER'),
+      password: getEnv('DB_PASSWORD', 'MYSQLPASSWORD', 'MYSQL_ROOT_PASSWORD'),
+      database: getEnv('DB_NAME', 'MYSQLDATABASE', 'MYSQL_DATABASE'),
+    };
+
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || process.env.MYSQLHOST,
-  port: process.env.DB_PORT || process.env.MYSQLPORT || 3306,
-  user: process.env.DB_USER || process.env.MYSQLUSER,
-  password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
-  database: process.env.DB_NAME || process.env.MYSQLDATABASE,
+  ...(typeof dbConfig === 'string' ? { uri: dbConfig } : dbConfig),
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
 });
 
+const validateDatabaseConfig = () => {
+  if (typeof dbConfig === 'string') {
+    return;
+  }
+
+  const missingKeys = Object.entries(dbConfig)
+    .filter(([key, value]) => key !== 'port' && !value)
+    .map(([key]) => key);
+
+  if (missingKeys.length > 0) {
+    throw new Error(`Missing database configuration: ${missingKeys.join(', ')}`);
+  }
+};
+
 const testConnection = async () => {
+  validateDatabaseConfig();
   const connection = await pool.getConnection();
   connection.release();
 };
@@ -47,6 +74,7 @@ const initializeDatabase = async () => {
 };
 
 module.exports = {
+  dbConfig,
   initializeDatabase,
   pool,
   testConnection,
